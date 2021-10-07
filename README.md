@@ -1,2 +1,2 @@
 # eyetracker-video
-Genters and tracks eye direction
+Centers face and tracks eye direction
