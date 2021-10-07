@@ -21,11 +21,6 @@ try:
 except:
     os.system('pip install dlib')
     import dlib
-# try:
-#     import mediapipe as mp
-# except:
-#     os.system('pip install mediapipe --user')
-#     import mediapipe as mp
 try:
     from math import hypot
 except:
@@ -36,7 +31,9 @@ try:
 except:
     os.system('pip install time')
     import time
-screen = np.zeros((480, 640, 3), dtype="uint8")         #Mouse-20211006
+screen = np.zeros((480, 640, 3), dtype="uint8")
+kernel = np.ones((9, 9), np.uint8) # Used later on in masking
+
 ##############################################################################
 #                               FUNCTIONS                                    #
 ##############################################################################
@@ -89,13 +86,13 @@ def draw_circle(event, x, y, flags, param):
         print("event: EVENT_LBUTTONDOWN")
 
     if event == cv2.EVENT_RBUTTONDOWN:
-        screen = np.zeros((480, 640, 3), dtype="uint8")
+        screen = np.zeros((480, 640, 3), dtype="uint8")         #Mouse-20211006
 
 
 ###############################################################################
 #                               BEGIN                                         #
 ###############################################################################
-DEBUG = 1                                                   #Improve-20210917
+DEBUG = 0                                                   
 ##############################################################################
 #                           BGR COLORS (in order of 1st digit, 2nd...)       #
 ##############################################################################
@@ -120,26 +117,26 @@ WHITE  = (255, 255, 255)
 ##############################################################################
 #            FONTS: Type, Scale, Thickness and Marker positions 
 ##############################################################################
-blink_font   = cv2.FONT_HERSHEY_COMPLEX_SMALL   #Parameters-20210914
-blink_font_position = (10, 50)                  #Parameters-20210914
-blink_font_scale = 1                            #Parameters-20210914
-blink_font_thickness =1                         #Parameters-20210914
-blink_font_color = (BLUE)                       #Parameters-20210914
-center_font = cv2.FONT_HERSHEY_TRIPLEX          #Parameters-20210916
-center_font_position = (10, 35)                 #Parameters-20210916
-center_font_scale = 1                           #Parameters-20210916
-center_font_thickness = 1                       #Parameters-20210916
-center_font_color = (GREEN)                     #Parameters-20210916
-left_eye_left_side_marker   = (10,200)          #Parameters-20210921
-left_eye_right_side_marker  = ( left_eye_left_side_marker[0],left_eye_left_side_marker[1]   + 10) #Parameters-20210921
-right_eye_left_side_marker  = ( left_eye_left_side_marker[0],left_eye_right_side_marker[1]  + 10) #Parameters-20210921
-right_eye_right_side_marker = ( left_eye_left_side_marker[0],right_eye_left_side_marker[1]  + 10) #Parameters-20210921
-gaze_marker                 = ( left_eye_left_side_marker[0],right_eye_right_side_marker[1] + 20) #Parameters-20210921
+blink_font   = cv2.FONT_HERSHEY_COMPLEX_SMALL   
+blink_font_position = (10, 50)                  
+blink_font_scale = 1                            
+blink_font_thickness =1                         
+blink_font_color = (BLUE)                       
+center_font = cv2.FONT_HERSHEY_TRIPLEX          
+center_font_position = (10, 35)                 
+center_font_scale = 1                           
+center_font_thickness = 1                       
+center_font_color = (GREEN)                     
+left_eye_left_side_marker   = (10,200)          
+left_eye_right_side_marker  = ( left_eye_left_side_marker[0],left_eye_left_side_marker[1]   + 10) 
+right_eye_left_side_marker  = ( left_eye_left_side_marker[0],left_eye_right_side_marker[1]  + 10) 
+right_eye_right_side_marker = ( left_eye_left_side_marker[0],right_eye_left_side_marker[1]  + 10) 
+gaze_marker                 = ( left_eye_left_side_marker[0],right_eye_right_side_marker[1] + 20) 
 direction_marker            = ( left_eye_left_side_marker[0],gaze_marker[1] + 20)
-gaze_font = cv2.FONT_HERSHEY_PLAIN              #Parameters-20210921
-gaze_font_scale =1                              #Parameters-20210921
-gaze_font_thickness = 1                         #Parameters-20210921
-gaze_font_color = (PURPLE)                      #Parameters-20210921
+gaze_font = cv2.FONT_HERSHEY_PLAIN              
+gaze_font_scale =1                              
+gaze_font_thickness = 1                         
+gaze_font_color = (PURPLE)                      
 threshold_intensity = 70  #(default is 70)      #Parameters-20210923
 time_font=cv2.FONT_HERSHEY_COMPLEX_SMALL        #Parameters-20210917
 time_font_position=(620,5)                      #Parameters-20210917
@@ -147,19 +144,19 @@ time_font_scale = .5                            #Parameters-20210917
 time_font_thickness = 1                         #Parameters-20210917
 time_font_color = (BLUE)                        #Parameters-20210917
 warning_font = cv2.FONT_HERSHEY_PLAIN           #Parameters-20210915
-warning_font_position = (120, 30)               #Parameters-20210916
-warning_font_scale = 1                          #Parameters-20210916
-warning_font_thickness = 1                      #Parameters-20210916
-warning_font_color = (RED)                      #Parameters-20210916
-#--------------------------------------         #Parameters-20210916
-# Sliders defaults                              #Parameters-20210916
-#--------------------------------------         #Parameters-20210916
+warning_font_position = (120, 30)               
+warning_font_scale = 1                          
+warning_font_thickness = 1                      
+warning_font_color = (RED)                      
+#--------------------------------------         
+# Sliders defaults                              
+#--------------------------------------         
 default_slider_centering_gaze = 5               #Parameters-20210929
-default_slider_threshold  = 118                 #Parameters-20210914
-default_slider_crosshairs = 255                 #Parameters-20210914
-default_slider_face_ticks = 255                 #Parameters-20210914
-default_x_stringency      = 20                  #Parameters-20210916
-default_y_stringency      = 20                  #Parameters-20210916
+default_slider_threshold  = 118                 
+default_slider_crosshairs = 255                 
+default_slider_face_ticks = 255                 
+default_x_stringency      = 20                  
+default_y_stringency      = 20                  
 default_blink             = 6                   #Parameters-20210917
 default_slider_single_eye = 40.5                #SingleEye-20210928
 default_slider_show_crosshairs = 0 
@@ -168,8 +165,8 @@ default_slider_show_crosshairs = 0
 #--------------------------------------         #Parameters-20210917
 left_eye_facial_points  = [36, 37, 38, 39, 40, 41] #Parameters-20210917
 right_eye_facial_points = [42, 43, 44, 45, 46, 47] #Parameters-20210917
-chin_point              = [8]                   #Parameters-20210921
-center_of_eyes          = [27]                  #Parameters-20210921
+chin_point              = [8]                   
+center_of_eyes          = [27]                  
 #--------------------------------------         #UI-20210916
 # Build Settings Window and Sliders             #UI-20210916
 #--------------------------------------         #UI-20210916
@@ -186,122 +183,124 @@ cv2.createTrackbar('X-axis',    'Settings', default_x_stringency,      255, func
 cv2.createTrackbar('Y-axis',    'Settings', default_y_stringency,      255, func_pass) #UI-20210916
 cv2.createTrackbar('Show Xhair', 'Settings', default_slider_show_crosshairs, 1, func_pass)
 
-kernel = np.ones((9, 9), np.uint8) # Used later on in masking
-screen = np.zeros((480, 640, 3), dtype="uint8")         #Mouse-20211006  
+
 
 detector =  dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
 
 #-------------------------------------- #Improve-20200917
-# Try and open camera                   #Improve-20210917
+# Try and open camera                   
 #-------------------------------------- #Improve-20200917
 # Set the video input                   #Improve-20200920
-#---------------------------------------#Improve-20210920
-videoInput = (1) #"video/eyes_2021-09-20_13.32.03.414371.avi")          #Improve-20210920
-cap = cv2.VideoCapture(videoInput)                                      #Improve-20210920
-if (cap.isOpened() == False):                                           #Improve-20210917
-    debug_func("########################################")              #Improve-20210917
-    debug_func('# Could not open camera. Aborting with no action taken.')#Improve-20210917
-    debug_func("# --> Is the camera plugged in or using built in camera?")#Improve-20210917
-    debug_func("# --> Does the camera work? Have you used it before?")   #Improve-20210917
-    debug_func("# --> Check if camera connections are loose/unattached.")#Improve-20210917
-    debug_func("# --> If plugged in webam, set:                     ")  #Improve-20210917
-    debug_func("#     --> cap = cv2.VideoCapture(x):                ")  #Improve-20210917
-    debug_func("#     --> cv2.VideoCapture(0) = built-in camera     ")  #Improve-20210917
-    debug_func("#     --> cv2.VideoCapture(1) = 1st USB camera      ")  #Improve-20210917
-    debug_func("#     --> cv2.VideoCapture(2) = 2nd USB camera      ")  #Improve-20210917
-    debug_func("########################################")              #Improve-20210917
-    sys.exit(1)                                                         #Improve-20210917
+#---------------------------------------
+videoInput = (1) #"video/eyes_2021-09-20_13.32.03.414371.avi")          
+cap = cv2.VideoCapture(videoInput)                                      
+if (cap.isOpened() == False):                                           
+    debug_func("########################################")              
+    debug_func('# Could not open camera. Aborting with no action taken.')
+    debug_func("# --> Is the camera plugged in or using built in camera?")
+    debug_func("# --> Does the camera work? Have you used it before?")   
+    debug_func("# --> Check if camera connections are loose/unattached.")
+    debug_func("# --> If plugged in webam, set:                     ")  
+    debug_func("#     --> cap = cv2.VideoCapture(x):                ")  
+    debug_func("#     --> cv2.VideoCapture(0) = built-in camera     ")  
+    debug_func("#     --> cv2.VideoCapture(1) = 1st USB camera      ")  
+    debug_func("#     --> cv2.VideoCapture(2) = 2nd USB camera      ")  
+    debug_func("########################################")              
+    sys.exit(1)                                                         
 #--------------------------------------                                 #Improve-20200917
-# Get the Image Frame size from the Camera                              #Improve-20210917
+# Get the Image Frame size from the Camera                              
 #--------------------------------------                                 #Improve-20200917
 img_width = int(cap.get(3))                                             #Improve-20200917
 img_height = int(cap.get(4))                                            #Improve-20200917
-debug_func("########################################")                  #Improve-20210917
-debug_func("# The camera image is size: ", img_width, " : ", img_height)#Improve-20210917
-debug_func("########################################")                  #Improve-20210917
-debug_func(" ")                                                        #Improve-20210920
+debug_func("########################################")                  
+debug_func("# The camera image is size: ", img_width, " : ", img_height)
+debug_func("########################################")                  
+debug_func(" ")                                                        
 #--------------------------------------                                 #Improve-20200917
-# Set up Video VideoCapture                                             #Improve-20210917
+# Set up Video VideoCapture                                             
 #--------------------------------------                                 #Improve-20200917
-current_timestamp = dt.now()                                            #Improve-20210917
-now = current_timestamp.strftime("%Y-%m-%d_%H.%M.%S.%f")                #Improve-20210917
+current_timestamp = dt.now()                                            
+now = current_timestamp.strftime("%Y-%m-%d_%H.%M.%S.%f")                
 if str(videoInput).isnumeric():                                         #Improve-20210924
-    out = cv2.VideoWriter('video/eyes_' + now + '.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (img_width,img_height)) #Improve-20210917
+    out = cv2.VideoWriter('video/eyes_' + now + '.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (img_width,img_height)) 
 ret, img = cap.read()
-#-------------------------------------- #Center-20210914
-# Center of image for centering dot     #Center-20210914
-#-------------------------------------- #Center-20210914
-img_center_y=img_height //2 #img.shape[0]//2            #Center-20210914
-img_center_x=img_width // 2 #img.shape[1]//2            #Center-20210914
-frame_cnt = 0                                           #Improve-20210930
-start_time =0                                           #Improve-20210930
-end_time = 0                                            #Improve-20210930
+#-------------------------------------- 
+# Center of image for centering dot     
+#-------------------------------------- 
+img_center_y=img_height //2 #img.shape[0]//2            
+img_center_x=img_width // 2 #img.shape[1]//2            
+frame_cnt = 0                                           
+start_time =0                                           
+end_time = 0                                            
 cv2.setMouseCallback('screen mouse', draw_circle)       #Mouse-20211006          
 
 ##############################################################################
 # MAIN LOGIC LOOP             MAIN LOGIC LOOP                  MAIN LOGIC LOOP
 ##############################################################################
-while(ret):                                                                 #Improve-20210920
-    try:                                                                    #Improve-20210920
+while(ret):                                                                 
+    try:                                                                    
         ret, img = cap.read()
-    except:                                                                 #Improve-20210920
-        debug_func("########################################")              #Improve-20210917
-        debug_func('# Could not read any more input. Aborting with no action taken.')#Improve-20210920
-        debug_func("# --> If this is reading a video,it means end of video.") #Improve-20210917
-        debug_func("# --> If you are using a webcam, ")                     #Improve-20210917
-        debug_func("#     it means issues with the camera.")                #Improve-20210920
-        debug_func("########################################")              #Improve-20210917
-        sys.exit(0)                                                         #Improve-20210920
-    start_time = time.time()                                                #Improve-20210930
-    frame_cnt  += 1                                                         #Improve-20210930
+    except:                                                                 
+        debug_func("########################################")              
+        debug_func('# Could not read any more input. Aborting with no action taken.')
+        debug_func("# --> If this is reading a video,it means end of video.") 
+        debug_func("# --> If you are using a webcam, ")                     
+        debug_func("#     it means issues with the camera.")                
+        debug_func("########################################")              
+        sys.exit(0)                                                         
+    start_time = time.time()                                                
+    frame_cnt  += 1                                                         
     thresh = img.copy()
     img2   = img.copy()
                     
-    roi = img[ 220:270, 250:305]                            #SingleEye-20210926
+    roi = img[ 220:270, 250:305]                            
     roi_rows, roi_cols, _ = roi.shape
     roi2 = roi.copy()
-    gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)        #SingleEye-20210926
-    Single_eye_threshold = cv2.getTrackbarPos('Eye_thresh', 'Settings') #SingleEye-20210927
-    _, threshold = cv2.threshold(gray_roi, Single_eye_threshold, 255, cv2.THRESH_BINARY_INV) #SingleEye-20210926
-    blur = cv2.GaussianBlur(threshold,(9,9),0)              #SingleEye-20210926
-    median = cv2.medianBlur(threshold,7)                    #SingleEye-20210926
-    cv2.imshow("GRoi", gray_roi)                            #SingleEye-20210926
-    cv2.imshow("TH", threshold)                             #SingleEye-20210926
-    cv2.imshow("blur", blur )                               #SingleEye-20210926
-    cv2.imshow("median", median)                            #SingleEye-20210926
-#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-#  Build contours to prepare for eye focus
-#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-    #contours, hierarchy = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) #SingleEye-20210926
-    contours, hierarchy = cv2.findContours(blur, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) #SingleEye-20210926
-    #contours, hierarchy = cv2.findContours(blur, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE) #SingleEye-20210926
-#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
-# CATCH divide by zero error
-#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#
+    gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)        
+    Single_eye_threshold = cv2.getTrackbarPos('Eye_thresh', 'Settings') 
+    _, threshold = cv2.threshold(gray_roi, Single_eye_threshold, 255, cv2.THRESH_BINARY_INV) 
+    blur = cv2.GaussianBlur(threshold,(9,9),0)              
+    median = cv2.medianBlur(threshold,7)                    
+    cv2.imshow("blur", blur )                               
+    cv2.imshow("median", median)
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# You can play with these settings
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    #contours, hierarchy = cv2.findContours(blur, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)                             
+    #contours, hierarchy = cv2.findContours(blur, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE) 
+    contours, hierarchy = cv2.findContours(blur, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) 
+   
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#   Generating contours - avoid devide by zero bug
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     if len(contours) > 0:
-        contours = sorted(contours, key=lambda x: cv2.contourArea(x), reverse=True) #SingleEye-20210929
-        #contours = max(contours, key=cv2.contourArea) #SingleEye-20210929
+        contours = sorted(contours, key=lambda x: cv2.contourArea(x), reverse=True) 
+        #contours = max(contours, key=cv2.contourArea) 
 
-        for cnt in contours:                                    #SingleEye-20210926
+        for cnt in contours:                                    
            (x, y, w, h) = cv2.boundingRect(cnt)                                   
            cv2.line(roi, (x + int(w/2), 0),  (x + int(w/2), roi_rows),  ORANGE, 1)
-           #DEBUGprint("roi horizontal coordinates: x: " + str(x) +  " w: " + str(w)  + " (x + int(w/2): " +  str(x + int(w/2)) + " roi_rows: " + str(roi_rows))
            cv2.line(roi, (0 , y + int(h/2) ), (roi_cols , y + int(h/2)),  ORANGE, 1)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     rects = detector(gray, 1)
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#
+#           Begin LOOP to process the detector's findings
+#
+#=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     for rect in rects:
         shape = predictor(gray, rect)
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#UI-20210914
 #                     Visual Tracking Customization                         #UI-20210914
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#UI-20210914
         crosshair_shade = cv2.getTrackbarPos('X-hairs', 'Settings')         #UI-20210914
-        color_eye_crosshairs   = (0, crosshair_shade, 0)                    #Parameters-20210914
+        color_eye_crosshairs   = (0, crosshair_shade, 0)                    
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#Blink-20210913
 #                     Experimental Blink Detection                          #Blink-20210913
 #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=#Blink-20210913
-        right_eye_left_point = (shape.part(36).x -5, shape.part(36).y < -1)   #Blink-20210913
+        right_eye_left_point = (shape.part(36).x -5, shape.part(36).y  -1)   #Blink-20210913
         right_eye_right_point = (shape.part(39).x -5, shape.part(39).y -1)  #Blink-20210913
         right_eye_center_top = midpoint(shape.part(37), shape.part(38))     #Blink-20210913
         right_eye_center_bottom = midpoint(shape.part(41), shape.part(40))  #Blink-20210913
@@ -312,10 +311,9 @@ while(ret):                                                                 #Imp
         left_eye_center_top    = midpoint(shape.part(43), shape.part(44) ) #Blink-20210913
         left_eye_center_bottom = midpoint(shape.part(45), shape.part(46) )
 
-        right_eye_center_temp_top = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)        #DEBUG-20211007
-        _, threshold = cv2.threshold(roi, Single_eye_threshold, 255, cv2.THRESH_BINARY_INV) #DEBUG-20211007
-        right_eye_center_temp_top = cv2.resize(right_eye_center_temp_top, None, fx=5, fy=5) #DEBUG-20211007
-        cv2.imshow("Reye_CNTR", right_eye_center_temp_top)                                  #DEBUG-20211007
+
+        right_eye_center_temp_top = cv2.resize(right_eye_center_top, None, fx=5, fy=5)              #DEBUG-20101016
+        cv2.imshow("Reye_Cntr", right_eye_center_temp_top)              #DEBUG-20210106
 
         
         
@@ -361,52 +359,52 @@ while(ret):                                                                 #Imp
                                     ],np.int32)                             #Gaze-20210916
 
 
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Center-20210917
-        # Visualize "Centered" messages on the screen b4 adding screen points #Center-20210917
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Center-20210917 
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        # Visualize "Centered" messages on the screen b4 adding screen points 
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- 
         mid = (shape.part(42).x + shape.part(39).x) // 2                    #Center-20210920
         #---------------------------------------------------
         mid_y_between_eyes = int((shape.part(42).y + shape.part(39).y) / 2) #Center-20210924
         mid_y_between_ears = int((shape.part(0).y  + shape.part(16).y) / 2) #Lateral-20210924
         #---------------------------------------------------
-        alignment_to_eyes_x_axis = abs(mid - img_center_x)                  #Center-20210915
-        alignment_to_eyes_y_axis = abs(mid_y_between_eyes - img_center_y)   #Center-20210915 
-        bottom_of_chin = shape.part(8).x                                    #Center-20210915     
+        alignment_to_eyes_x_axis = abs(mid - img_center_x)                  
+        alignment_to_eyes_y_axis = abs(mid_y_between_eyes - img_center_y)    
+        bottom_of_chin = shape.part(8).x                                         
         x_stringency = cv2.getTrackbarPos('X-axis', 'Settings')             #UI-20210916
         y_stringency = cv2.getTrackbarPos('Y-axis', 'Settings')             #UI-20210916
-        if alignment_to_eyes_x_axis < x_stringency:                         #Center-20210916
-            if alignment_to_eyes_y_axis < y_stringency:                     #Center-20210916
-                if abs(bottom_of_chin - mid) < 10:                          #Center-20210916
+        if alignment_to_eyes_x_axis < x_stringency:                         
+            if alignment_to_eyes_y_axis < y_stringency:                     
+                if abs(bottom_of_chin - mid) < 10:                          
                     cv2.putText(img, "Centered and Aligned", center_font_position, center_font, center_font_scale, center_font_color) #Centered-20210913
-                    current_timestamp = dt.now()                            #Improve-20210917
-                    now = current_timestamp.strftime("%Y-%m-%d_%H.%M.%S.%f")#Improve-20210917
+                    current_timestamp = dt.now()                            
+                    now = current_timestamp.strftime("%Y-%m-%d_%H.%M.%S.%f")
                     try:
-                        if str(videoInput).isnumeric():                     #Improve-20210920
-                            cv2.putText(img, "Time: " + now, (400,20), time_font, time_font_scale, time_font_color) #Improve-20210917
-                            out.write(img)                                  #Improve-20210917
+                        if str(videoInput).isnumeric():                     
+                            cv2.putText(img, "Time: " + now, (400,20), time_font, time_font_scale, time_font_color) 
+                            out.write(img)                                  
                         else:                                               #Improve-20210924
-                            cv2.putText(img, "Time: " + now, (400,30), time_font, time_font_scale, time_font_color) #Improve-20210920
-                    except:                                                 #Improve-20210920
-                        cv2.putText(img, "Time: " + now, (400,20), time_font, time_font_scale, time_font_color) #Improve-20210920
-                else:                                                       #Center-20210915
-                    cv2.putText(img, "Eyes Centered, Face NOT Aligned", warning_font_position, warning_font, warning_font_scale, warning_font_color) #Center-20210915
+                            cv2.putText(img, "Time: " + now, (400,30), time_font, time_font_scale, time_font_color) 
+                    except:                                                 
+                        cv2.putText(img, "Time: " + now, (400,20), time_font, time_font_scale, time_font_color) 
+                else:                                                       
+                    cv2.putText(img, "Eyes Centered, Face NOT Aligned", warning_font_position, warning_font, warning_font_scale, warning_font_color) 
 
 
-        height, width, _ = img.shape                                        #Eyepoints-20210920
-        mask_zeros = np.zeros((height,width), np.uint8)                     #Eyepoints-20210920
+        height, width, _ = img.shape                                        
+        mask_zeros = np.zeros((height,width), np.uint8)                     
       
-        #--------------------------------------------                       #Eyepoints-20210920
-        # Draw eye-liner on mask_zeros and img                              #Eyepoints-20210920
-        #--------------------------------------------                       #Eyepoints-20210920
-        cv2.polylines(mask_zeros, [left_eye_region],  True, 255, 1)         #Eyepoints-20210920
-        #cv2.polylines(img, [left_eye_region],  True, 255, 1)                #Eyepoints-20210920
-        cv2.fillPoly(mask_zeros, [left_eye_region], 1)                      #Eyepoints-20210920
-        left_eye_bitwise=cv2.bitwise_and(gray, gray,mask=mask_zeros)        #Eyepoints-20210920
+        #--------------------------------------------                       
+        # Draw eye-liner on mask_zeros and img                              
+        #--------------------------------------------                       
+        cv2.polylines(mask_zeros, [left_eye_region],  True, 255, 1)         
+        #cv2.polylines(img, [left_eye_region],  True, 255, 1)                
+        cv2.fillPoly(mask_zeros, [left_eye_region], 1)                      
+        left_eye_bitwise=cv2.bitwise_and(gray, gray,mask=mask_zeros)        
 
-        cv2.polylines(mask_zeros, [right_eye_region], True, 255, 1)         #Eyepoints-20210920
-        #cv2.polylines(img, [right_eye_region], True, 255, 1)                #Eyepoints-20210920
-        cv2.fillPoly(mask_zeros, [right_eye_region], 1)                     #Eyepoints-20210920
-        right_eye_bitwise=cv2.bitwise_and(gray, gray,mask=mask_zeros)       #Eyepoints-20210920
+        cv2.polylines(mask_zeros, [right_eye_region], True, 255, 1)         
+        #cv2.polylines(img, [right_eye_region], True, 255, 1)                
+        cv2.fillPoly(mask_zeros, [right_eye_region], 1)                     
+        right_eye_bitwise=cv2.bitwise_and(gray, gray,mask=mask_zeros)       
 
 
         #--------------------------------------------                       #Gaze-20210917
@@ -424,36 +422,36 @@ while(ret):                                                                 #Imp
         right_min_y = np.min(right_eye_region[:, 1])                        #Gaze-20210915
         right_max_y = np.max(right_eye_region[:, 1])                        #Gaze-20210915
 
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Eyepointer-20210921
-        # Visualize left/right eye movement messages on the screen          #Eyepointer-20210921
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Eyepointer-20210921
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        # Visualize left/right eye movement messages on the screen          
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        left_eye_gray = left_eye_bitwise[left_min_y:left_max_y, left_min_x: left_max_x ]              #Eyepointer-20210921
-        _, threshold_left_eye = cv2.threshold(left_eye_gray, threshold_intensity, 255, cv2.THRESH_BINARY)              #Eyepointer-20210921
+        left_eye_gray = left_eye_bitwise[left_min_y:left_max_y, left_min_x: left_max_x ]              
+        _, threshold_left_eye = cv2.threshold(left_eye_gray, threshold_intensity, 255, cv2.THRESH_BINARY)              
 
-        right_eye_gray = right_eye_bitwise[right_min_y:right_max_y, right_min_x: right_max_x ]        #Eyepointer-20210921
-        _, threshold_right_eye = cv2.threshold(right_eye_gray, threshold_intensity, 255, cv2.THRESH_BINARY)            #Eyepointer-20210921
+        right_eye_gray = right_eye_bitwise[right_min_y:right_max_y, right_min_x: right_max_x ]        
+        _, threshold_right_eye = cv2.threshold(right_eye_gray, threshold_intensity, 255, cv2.THRESH_BINARY)            
         
         #===================================================================#DEBUG-20210923
         threshold_left_eye = cv2.dilate(threshold_left_eye, kernel, 5)      #DEBUG-20210923
         #===================================================================#DEBUG-20210923
 
-        left_eye_height, left_eye_width = threshold_left_eye.shape                                          #Eyepointer-20210921
+        left_eye_height, left_eye_width = threshold_left_eye.shape                                          
         left_eye_left_side_threshold = threshold_left_eye[0:left_eye_height, 0: int(left_eye_width/2)]      #LeftRight-20210921
         left_eye_right_side_threshold = threshold_left_eye[0: left_eye_height, int(left_eye_width/2): left_eye_width] #LeftRight-20210921
         left_eye_left_side_white = cv2.countNonZero(left_eye_left_side_threshold)                           #LeftRight-20210921
         left_eye_right_side_white = cv2.countNonZero(left_eye_right_side_threshold)                         #LeftRight-20210921
        
-        right_eye_height, right_eye_width = threshold_right_eye.shape                                       #Eyepointer-20210921
+        right_eye_height, right_eye_width = threshold_right_eye.shape                                       
         right_eye_left_side_threshold  = threshold_right_eye[0: right_eye_height, 0: int(right_eye_width/2)]#LeftRight-20210921
         right_eye_right_side_threshold = threshold_right_eye[0: right_eye_height, int(right_eye_width/2): right_eye_width] #LeftRight-20210921
         right_eye_left_side_white = cv2.countNonZero(right_eye_left_side_threshold)                         #LeftRight-20210921
         right_eye_right_side_white = cv2.countNonZero(right_eye_right_side_threshold)                       #v-20210921
 
-        cv2.putText(img, "Leye_left_sclera:   "  + str(left_eye_left_side_white),  left_eye_left_side_marker,   warning_font, warning_font_scale/2, warning_font_color) #Eyepointer-20210921
-        cv2.putText(img, "Leye_right_sclera:  "  + str(left_eye_right_side_white), left_eye_right_side_marker,  warning_font, warning_font_scale/2, warning_font_color) #Eyepointer-20210921
-        cv2.putText(img, "Reye_left_sclera:  "   + str(right_eye_left_side_white), right_eye_left_side_marker,  warning_font, warning_font_scale/2, warning_font_color) #Eyepointer-20210921
-        cv2.putText(img, "Reye_right_sclera: "   + str(right_eye_right_side_white),right_eye_right_side_marker, warning_font, warning_font_scale/2, warning_font_color) #Eyepointer-20210921
+        cv2.putText(img, "Leye_left_sclera:   "  + str(left_eye_left_side_white),  left_eye_left_side_marker,   warning_font, warning_font_scale/2, warning_font_color) 
+        cv2.putText(img, "Leye_right_sclera:  "  + str(left_eye_right_side_white), left_eye_right_side_marker,  warning_font, warning_font_scale/2, warning_font_color) 
+        cv2.putText(img, "Reye_left_sclera:  "   + str(right_eye_left_side_white), right_eye_left_side_marker,  warning_font, warning_font_scale/2, warning_font_color) 
+        cv2.putText(img, "Reye_right_sclera: "   + str(right_eye_right_side_white),right_eye_right_side_marker, warning_font, warning_font_scale/2, warning_font_color) 
         
         left_eye_gaze_ratio = left_eye_left_side_white - left_eye_right_side_white     #LeftRight-20210921
         right_eye_gaze_ratio = right_eye_left_side_white -  right_eye_right_side_white #LeftRight-20210921
@@ -502,42 +500,45 @@ while(ret):                                                                 #Imp
         face_ticks = cv2.getTrackbarPos('Face-Marks', 'Settings')           #UI-20210914
         for (x, y) in shape[0:36]: #[0:48]                                  #BUGFIX-20210924
             cv2.circle(img, (x, y), 1, (face_ticks, 0, 0), -1)
-            cv2.line(img, shape[8], shape[27], (124, 90, 85), 1)            #Center-20210917
+            cv2.line(img, shape[8], shape[27], (124, 90, 85), 1)            
             cv2.line(img, shape[0], shape[16], (CYAN), 1)            #Lateral-20210930
-            cv2.line(img, shape[27], ((int(img_width/2)),img_height), (0, 255, 0), thickness=1, lineType=8, shift=0) #Center-20210917
+            cv2.line(img, shape[27], ((int(img_width/2)),img_height), (0, 255, 0), thickness=1, lineType=8, shift=0) 
             cv2.line(img, shape[0],   (int(img_width/2), int((img_height/2))), (124, 0, 255), thickness=1, lineType=8, shift=0) #Lateral-20210924
             #if DEBUG:
 
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Center-20210917
-        # Visualize the centering dots in middle of screen                  #Center-20210917
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Center-20210917
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        # Visualize the centering dots in middle of screen                  
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-            cv2.circle(img, (mid, mid_y_between_eyes), 12, (255, 0, 255), -1)   #Center-20210915
-            cv2.circle(img,(img_center_x,img_center_y), 12, (118,118,118), -1)  #Center-20210914
+            cv2.circle(img, (mid, mid_y_between_eyes), 12, (255, 0, 255), -1)   
+            cv2.circle(img,(img_center_x,img_center_y), 12, (118,118,118), -1)  
      
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Crosshairs-20210913
-        #              visualize the cross-hairs on the eyes                #Crosshairs-20210913
-        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Crosshairs-20210913
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        #              visualize the cross-hairs on the eyes                
+        ##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         Crosshair_state    = cv2.getTrackbarPos('Show Xhair', 'Settings')
-        if Crosshair_state:
-            left_eye_hor_line  = cv2.line(img, left_eye_left_point,  left_eye_right_point,   (color_eye_crosshairs), 1) #Crosshairs-20210913
-            left_eye_ver_line  = cv2.line(img, left_eye_center_top,  left_eye_center_bottom, (color_eye_crosshairs), 1) #Crosshairs-20210913
-            right_eye_hor_line = cv2.line(img, right_eye_left_point, right_eye_right_point,  (color_eye_crosshairs), 1) #Crosshairs-20210913
-            right_eye_ver_line = cv2.line(img, right_eye_center_top, right_eye_center_bottom,(color_eye_crosshairs), 1) #Crosshairs-20210913
-        #DEBUG##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Eyepoints-20210913
-        #DEBUG# Visualize the eye points being tracked                            #Eyepoints-20210920
-        #DEBUG##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#Eyepoints-20210920
-        #DEBUG cv2.polylines(img, [left_eye_region], True, (0,0,255),1)
-        #DEBUG cv2.polylines(img, [right_eye_region], True, (0,0,255),1)
-        if DEBUG:                                                          #Improve-20210930
-            cv2.putText(img, "DEBUG ON " , (1,10), time_font, time_font_scale, RED) #Improve-20210930
-            cv2.putText(img, "Align Chin to green vertical line", (shape[8][0] , (shape[8][1] - 5)), time_font, time_font_scale, BLACK) #Improve-20210930
-            cv2.putText(img, "Align Gray and Pink Dots", ((img_center_x), (img_center_y + 10)), time_font, time_font_scale, PINK) #Improve-20210930
-            cv2.putText(img, "You can adjust X-axis and Y-axis", ((img_center_x), (img_center_y + 20)), time_font, time_font_scale, BLACK) #Improve-20210930
-            cv2.putText(img, "setting to adjust sensitivity.", ((img_center_x), (img_center_y + 30)), time_font, time_font_scale, BLACK) #Improve-20210930
-            cv2.putText(img, "Align face to pink line", (shape[0][0] , (shape[0][1] - 5)), time_font, time_font_scale, (CYAN)) #Improve-20210930
+        if int(Crosshair_state) > 0:
+            left_eye_hor_line  = cv2.line(img, left_eye_left_point,  left_eye_right_point,   (color_eye_crosshairs), 1) 
+            left_eye_ver_line  = cv2.line(img, left_eye_center_top,  left_eye_center_bottom, (color_eye_crosshairs), 1) 
+            right_eye_hor_line = cv2.line(img, right_eye_left_point, right_eye_right_point,  (color_eye_crosshairs), 1)
+            right_eye_ver_line = cv2.line(img, right_eye_center_top, right_eye_center_bottom,(color_eye_crosshairs), 1) 
+        #DEBUG##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        #DEBUG# Visualize the eye points being tracked                            
+        #DEBUG##=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        if DEBUG:
+            cv2.polylines(img, [left_eye_region], True, (0,0,255),1)
+            cv2.polylines(img, [right_eye_region], True, (0,0,255),1)
+        if DEBUG:                                                          
+            cv2.putText(img, "DEBUG: " , (1,10), time_font, time_font_scale, BLUE) 
+            cv2.putText(img, " ON", (45,10), time_font,  time_font_scale, RED,thickness=2)
+            cv2.putText(img, "Align Chin to green vertical line", (shape[8][0] , (shape[8][1] - 5)), time_font, time_font_scale, BLACK) 
+            cv2.putText(img, "Align Gray and Pink Dots", ((img_center_x), (img_center_y + 10)), time_font, time_font_scale, PINK) 
+            cv2.putText(img, "You can adjust X-axis and Y-axis", ((img_center_x), (img_center_y + 20)), time_font, time_font_scale, BLACK) 
+            cv2.putText(img, "setting to adjust sensitivity.", ((img_center_x), (img_center_y + 30)), time_font, time_font_scale, BLACK) 
+            cv2.putText(img, "Align face to pink line", (shape[0][0] , (shape[0][1] - 5)), time_font, time_font_scale, (CYAN)) 
         else:
-            cv2.putText(img, "DEBUG OFF " , (1,10), time_font, time_font_scale, LIGHT_BLUE) #Improve-20210930
+            cv2.putText(img, "DEBUG: " , (1,10), time_font, time_font_scale, BLUE)
+            cv2.putText(img, " OFF " , (45,10), time_font, time_font_scale, GREEN) 
 
     #=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#SuperImpose-20210929
     # Size roi2 and superimpose onto "img"                             #SuperImpose-20210929
@@ -545,14 +546,12 @@ while(ret):                                                                 #Imp
     roi2 = cv2.resize(roi2, None, fx=3, fy=3)                          #SuperImpose-20210929
     img[90:190,10:175,:] = roi2[0:100,0:165,:]                         #SuperImpose-20210929
     cv2.rectangle(img, (10,90), (175,190), BLUE,2)                     #SuperImpose-20210929
-    end_time = time.time()                                             #Improve-20210930
-    img_duration = end_time - start_time                               #Improve-20210930
-    cv2.putText(img, "Frame Processing Speed: " + str(img_duration), (400,10), time_font, time_font_scale, time_font_color) #Improve-20210930
+    end_time = time.time()                                             
+    img_duration = end_time - start_time                               
+    cv2.putText(img, "Frame Processing Speed: " + str(img_duration), (400,10), time_font, time_font_scale, time_font_color) 
     cv2.imshow('eyes', img)
     cv2.imshow('screen mouse', screen)
-    #DEBUG-20210921 cv2.imshow("Settings", thresh)
-                                      #Eyepoints-20210920
-
+    
     
 #######################################
 # ENDING LOGIC
@@ -561,5 +560,5 @@ while(ret):                                                                 #Imp
         break
         
 cap.release()
-out.release()                                                       #Improve-20210917
+out.release()                                                       
 cv2.destroyAllWindows()
